@@ -10,58 +10,59 @@ exec 3>&1
 export TRACEROUTE_ADDRESS_POOL=()
 
 function _fdate() {
-    echo -n $(date +%Y-%m-%d\ %H:%M:%S)
+	echo -n $(date +%Y-%m-%d\ %H:%M:%S)
 }
 
 function _add_ip_to_pool() {
-    local ip=$2
-    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-        if [[ ! " ${TRACEROUTE_ADDRESS_POOL[@]} " =~ " ${ip} " ]]; then
-            TRACEROUTE_ADDRESS_POOL+=($ip)
-            echo "${TRACEROUTE_ADDRESS_POOL[@]}"
-        fi
-    fi
+	local ip=$2
+	if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+		if [[ ! " ${TRACEROUTE_ADDRESS_POOL[@]} " =~ " ${ip} " ]]; then
+			TRACEROUTE_ADDRESS_POOL+=($ip)
+			echo "${TRACEROUTE_ADDRESS_POOL[@]}"
+		fi
+	fi
 }
 
 function traceroute_routine() {
-    traceroute -q 3 -w 1 -m 15 -I ${TARGET_ADDR} | while read line; do
-        if [[ $line == *"traceroute to"* ]]; then
-            echo "[$(_fdate)] $line"
-        else
-            echo -e "[$(_fdate)]\t$line"
-        fi
-    done
+	echo "[$(_fdate)] start traceroute routine..."
+	traceroute -q 3 -w 1 -m 15 --type icmp -I ${TARGET_ADDR} | while read line; do
+		if [[ $line == *"traceroute to"* ]]; then
+			echo "[$(_fdate)] $line"
+		else
+			echo -e "[$(_fdate)] \t$line"
+		fi
+	done
+	echo "[$(_fdate)] traceroute routine ended!"
 }
 
 function ping_routine() {
-    ping -dv -c 30 -i 2 -W 1 ${TARGET_ADDR} | while read pong; do
-        if [[ $pong == "PING"* ]]; then
-            echo "[$(_fdate)] $pong"
-        elif [[ $pong == *"Request timeout"* ]]; then
-            echo -e "[$(_fdate)]\t[!] $pong"
-        elif [[ $pong == *"bytes from"* ]]; then
-            echo -e "[$(_fdate)]\t[-] $pong"
-        else
-            echo -e "[$(_fdate)] $pong"
-        fi
-    done
+	echo "[$(_fdate)] start ping routine..."
+	ping -ndv -c 30 -i 2 --ttl 1 -W 1 ${TARGET_ADDR} | while read pong; do
+		if [[ $pong == "PING"* ]]; then
+			echo "[$(_fdate)] $pong"
+		elif [[ $pong == *"Request timeout"* ]]; then
+			echo -e "[$(_fdate)] \t[!] $pong"
+		elif [[ $pong == *"bytes from"* ]]; then
+			echo -e "[$(_fdate)] \t[-] $pong"
+		else
+			echo -e "[$(_fdate)] $pong"
+		fi
+	done
+	echo "[$(_fdate)] ping routine ended!"
 }
 
 function main() {
-    echo "[$(_fdate)] Start network analysis on ${TARGET_ADDR}"
-    echo "[$(_fdate)] "
-    echo "[$(_fdate)] Service will start traceroute and ping routine and run every ${TARGET_ANALYSE_INTERVAL} seconds."
-    echo "[$(_fdate)] Press Ctrl+C to stop."
-    echo "[$(_fdate)] "
-    while true; do
-        echo "[$(_fdate)] start routine..."
-        echo "[$(_fdate)] "; traceroute_routine
-        sleep ${TARGET_ANALYSE_INTERVAL}
-        echo "[$(_fdate)] "; ping_routine
-        echo "[$(_fdate)] "; sleep ${TARGET_ANALYSE_INTERVAL}
-        echo "[$(_fdate)] routine ended!"
-        echo "[$(_fdate)] "
-    done
+	echo "[$(_fdate)] Start network analysis on ${TARGET_ADDR}"
+	echo "[$(_fdate)] "
+	echo "[$(_fdate)] Service will start traceroute and ping routine and run every ${TARGET_ANALYSE_INTERVAL} seconds."
+	echo "[$(_fdate)] Press Ctrl+C to stop."
+
+	while true; do
+		echo "[$(_fdate)] "; traceroute_routine
+		sleep ${TARGET_ANALYSE_INTERVAL}
+		echo "[$(_fdate)] "; ping_routine
+		echo "[$(_fdate)] "; sleep ${TARGET_ANALYSE_INTERVAL}
+	done
 }
 
 main "$@"
