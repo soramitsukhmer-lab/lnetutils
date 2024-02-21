@@ -34,11 +34,13 @@ function traceroute_routine() {
 }
 
 function ping_routine() {
-	ping -n -c 5 -i 1 --ttl 1 -W 1 ${TARGET_ADDR} | while read pong; do
+	ping -n -c 5 -i 1 --ttl 2 -W 1 ${TARGET_ADDR} | while read pong; do
 		if [[ $pong == "PING"* ]]; then
 			echo -e "[$(_fdate)] $pong"
 		elif [[ $pong == *"Request timeout"* ]]; then
 			echo -e "[$(_fdate)] \t[!] $pong"
+		elif [[ $pong == *"Time to live exceeded"* ]]; then
+			echo -e "[$(_fdate)] \t[!] $pong (Possible reason: ICMP is disabled!)"
 		elif [[ $pong == *"bytes from"* ]]; then
 			echo -e "[$(_fdate)] \t[-] $pong"
 		else

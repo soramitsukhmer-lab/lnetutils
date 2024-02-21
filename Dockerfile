@@ -3,6 +3,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y \
         bash \
         curl     \
+        netcat-openbsd \
         inetutils-ping \
         inetutils-traceroute \
     && rm -rf /var/lib/apt/lists/*
