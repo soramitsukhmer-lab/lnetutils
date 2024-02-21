@@ -1,5 +1,6 @@
 #!/bin/bash
-TARGET_ADDR=${TARGET_ADDR:-1.1.1.1}
+TARGET_HOST=${TARGET_HOST:-1.1.1.1}
+TARGET_PORT=${TARGET_PORT:-80}
 TARGET_ANALYSE_INTERVAL=${TARGET_ANALYSE_INTERVAL:-2}
 
 trap 'exit 0' SIGTERM
@@ -24,7 +25,7 @@ function _add_ip_to_pool() {
 }
 
 function traceroute_routine() {
-	traceroute -q 3 -w 1 -m 15 --type icmp -I ${TARGET_ADDR} | while read line; do
+	traceroute -q 3 -w 1 -m 15 --type icmp -I ${TARGET_HOST} | while read line; do
 		if [[ $line == *"traceroute to"* ]]; then
 			echo "[$(_fdate)] $line"
 		else
@@ -34,7 +35,7 @@ function traceroute_routine() {
 }
 
 function ping_routine() {
-	ping -n -c 5 -i 2 --ttl 2 -W 1 ${TARGET_ADDR} | while read pong; do
+	ping -n -c 5 -i 2 --ttl 2 -W 1 ${TARGET_HOST} | while read pong; do
 		if [[ $pong == "PING"* ]]; then
 			echo -e "[$(_fdate)] $pong"
 		elif [[ $pong == *"Request timeout"* ]]; then
@@ -50,7 +51,7 @@ function ping_routine() {
 }
 
 function main() {
-	echo "[$(_fdate)] Start network analysis on ${TARGET_ADDR}"
+	echo "[$(_fdate)] Start network analysis on ${TARGET_HOST}"
 	echo "[$(_fdate)] "
 	echo "[$(_fdate)] Service will start traceroute and ping routine and run every ${TARGET_ANALYSE_INTERVAL} seconds."
 	echo "[$(_fdate)] Press Ctrl+C to stop."
