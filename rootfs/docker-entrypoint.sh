@@ -1,7 +1,8 @@
 #!/bin/bash
 TARGET_HOST=${TARGET_HOST:-1.1.1.1}
 TARGET_PORT=${TARGET_PORT:-80}
-TARGET_ANALYSE_INTERVAL=${TARGET_ANALYSE_INTERVAL:-2}
+TARGET_CHECK_INTERVAL=${TARGET_CHECK_INTERVAL:-2}
+TARGET_CHECK_MAX_HOP=${TARGET_CHECK_MAX_HOP:-15}
 
 trap 'exit 0' SIGTERM
 trap 'exit 0' SIGINT
@@ -25,7 +26,7 @@ function _add_ip_to_pool() {
 }
 
 function traceroute_routine() {
-	traceroute -q 3 -w 1 -m 15 --type icmp -I ${TARGET_HOST} | while read line; do
+	traceroute -q 3 -w 1 -m ${TARGET_CHECK_MAX_HOP} --type icmp -I ${TARGET_HOST} | while read line; do
 		if [[ $line == *"traceroute to"* ]]; then
 			echo "[$(_fdate)] $line"
 		else
@@ -35,7 +36,7 @@ function traceroute_routine() {
 }
 
 function ping_routine() {
-	ping -n -c 5 -i 2 -W 1 ${TARGET_HOST} | while read pong; do
+	ping -n -c 5 -i 2 --ttl ${TARGET_CHECK_MAX_HOP} -W 1 ${TARGET_HOST} | while read pong; do
 		if [[ $pong == "PING"* ]]; then
 			echo -e "[$(_fdate)] $pong"
 		elif [[ $pong == *"Request timeout"* ]]; then
@@ -53,16 +54,16 @@ function ping_routine() {
 function main() {
 	echo "[$(_fdate)] Start network analysis on ${TARGET_HOST}"
 	echo "[$(_fdate)] "
-	echo "[$(_fdate)] Service will start traceroute and ping routine and run every ${TARGET_ANALYSE_INTERVAL} seconds."
+	echo "[$(_fdate)] Service will start traceroute and ping routine and run every ${TARGET_CHECK_INTERVAL} seconds."
 	echo "[$(_fdate)] Press Ctrl+C to stop."
 
 	while true; do
 		echo "[$(_fdate)] "; traceroute_routine
-		sleep ${TARGET_ANALYSE_INTERVAL}
+		sleep ${TARGET_CHECK_INTERVAL}
 
 		for(( i=0; i<5; i++ )); do
 			echo "[$(_fdate)] "; ping_routine
-			sleep ${TARGET_ANALYSE_INTERVAL}
+			sleep ${TARGET_CHECK_INTERVAL}
 		done
 	done
 }
