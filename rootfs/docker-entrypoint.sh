@@ -1,7 +1,6 @@
 #!/bin/bash
-INSPECT_TARGET_ADDR=${INSPECT_TARGET_ADDR:-1.1.1.1}
-PING_WAIT_SEC=${PING_WAIT_SEC:-2}
-PINT_TIMEOUT=${PINT_TIMEOUT:-60}
+TARGET_ADDR=${TARGET_ADDR:-1.1.1.1}
+TARGET_ANALYSE_INTERVAL=${TARGET_ANALYSE_INTERVAL:-2}
 
 trap 'exit 0' SIGTERM
 trap 'exit 0' SIGINT
@@ -25,13 +24,17 @@ function _add_ip_to_pool() {
 }
 
 function traceroute_routine() {
-    traceroute -nIS -z ${PING_WAIT_SEC} ${INSPECT_TARGET_ADDR} | while read line; do
-        echo -e "[$(_fdate)]\t$line"
+    traceroute -q 3 -w 1 -I ${TARGET_ADDR} | while read line; do
+        if [[ $line == *"traceroute to"* ]]; then
+            echo "[$(_fdate)] $line"
+        else
+            echo -e "[$(_fdate)]\t$line"
+        fi
     done
 }
 
 function ping_routine() {
-    ping -n -t ${PINT_TIMEOUT} -i ${PING_WAIT_SEC} ${INSPECT_TARGET_ADDR} | while read pong; do
+    ping -v -c 30 -i 2 -W 1 ${TARGET_ADDR} | while read pong; do
         if [[ $pong == "PING"* ]]; then
             echo "[$(_fdate)] $pong"
         elif [[ $pong == *"Request timeout"* ]]; then
@@ -45,16 +48,19 @@ function ping_routine() {
 }
 
 function main() {
-    echo "[$(_fdate)] Start network analysis on ${INSPECT_TARGET_ADDR}"
+    echo "[$(_fdate)] Start network analysis on ${TARGET_ADDR}"
     echo "[$(_fdate)] "
-    echo "[$(_fdate)] Service will start traceroute and ping routine and run every ${PING_WAIT_SEC} seconds."
+    echo "[$(_fdate)] Service will start traceroute and ping routine and run every ${TARGET_ANALYSE_INTERVAL} seconds."
     echo "[$(_fdate)] Press Ctrl+C to stop."
     echo "[$(_fdate)] "
     while true; do
-        echo -n "[$(_fdate)] "; traceroute_routine
-        sleep ${PING_WAIT_SEC}
+        echo "[$(_fdate)] start routine..."
+        echo "[$(_fdate)] "; traceroute_routine
+        sleep ${TARGET_ANALYSE_INTERVAL}
         echo "[$(_fdate)] "; ping_routine
-        echo "[$(_fdate)] "; sleep ${PING_WAIT_SEC}
+        echo "[$(_fdate)] "; sleep ${TARGET_ANALYSE_INTERVAL}
+        echo "[$(_fdate)] routine ended!"
+        echo "[$(_fdate)] "
     done
 }
 
