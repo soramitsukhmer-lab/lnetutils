@@ -1,0 +1,24 @@
+[2024-02-21 10:42:38] Start network analysis on 1.1.1.1
+[2024-02-21 10:42:38] 
+[2024-02-21 10:42:38] Service will start traceroute once every 5 ping routines executed
+[2024-02-21 10:42:38] and re-run every 2 seconds.
+[2024-02-21 10:42:38] 
+[2024-02-21 10:42:38] Customizing the following environment variables to change the behavior:
+[2024-02-21 10:42:38] - TARGET_HOST=1.1.1.1
+[2024-02-21 10:42:38] - TARGET_CHECK_MAX_HOP=15 (default: 15)
+[2024-02-21 10:42:38] 
+[2024-02-21 10:42:38] Press Ctrl+C to stop.
+[2024-02-21 10:42:38] 
+[2024-02-21 10:42:38] traceroute to 1.1.1.1 (1.1.1.1), 15 hops max
+[2024-02-21 10:42:38]   1   172.17.0.1  0.003ms  0.001ms  0.001ms
+[2024-02-21 10:42:38]   2   1.1.1.1  18.361ms  6.223ms  5.672ms
+[2024-02-21 10:42:40] 
+[2024-02-21 10:42:40] PING 1.1.1.1 (1.1.1.1): 56 data bytes
+[2024-02-21 10:42:40]   [-] 64 bytes from 1.1.1.1: icmp_seq=0 ttl=63 time=82.831 ms
+[2024-02-21 10:42:42]   [-] 64 bytes from 1.1.1.1: icmp_seq=1 ttl=63 time=180.898 ms
+[2024-02-21 10:42:44]   [-] 64 bytes from 1.1.1.1: icmp_seq=2 ttl=63 time=8.935 ms
+[2024-02-21 10:42:46]   [-] 64 bytes from 1.1.1.1: icmp_seq=3 ttl=63 time=7.186 ms
+[2024-02-21 10:42:48]   [-] 64 bytes from 1.1.1.1: icmp_seq=4 ttl=63 time=16.930 ms
+[2024-02-21 10:42:48]   --- 1.1.1.1 ping statistics ---
+[2024-02-21 10:42:48]   5 packets transmitted, 5 packets received, 0% packet loss
+[2024-02-21 10:42:48]   round-trip min/avg/max/stddev = 7.186/59.356/180.898/66.914 ms
