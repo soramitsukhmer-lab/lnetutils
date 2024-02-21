@@ -24,7 +24,6 @@ function _add_ip_to_pool() {
 }
 
 function traceroute_routine() {
-	echo "[$(_fdate)] start traceroute routine..."
 	traceroute -q 3 -w 1 -m 15 --type icmp -I ${TARGET_ADDR} | while read line; do
 		if [[ $line == *"traceroute to"* ]]; then
 			echo "[$(_fdate)] $line"
@@ -32,11 +31,9 @@ function traceroute_routine() {
 			echo -e "[$(_fdate)] \t$line"
 		fi
 	done
-	echo "[$(_fdate)] traceroute routine ended!"
 }
 
 function ping_routine() {
-	echo "[$(_fdate)] start ping routine..."
 	ping -ndv -c 30 -i 2 --ttl 1 -W 1 ${TARGET_ADDR} | while read pong; do
 		if [[ $pong == "PING"* ]]; then
 			echo "[$(_fdate)] $pong"
@@ -48,7 +45,6 @@ function ping_routine() {
 			echo -e "[$(_fdate)] $pong"
 		fi
 	done
-	echo "[$(_fdate)] ping routine ended!"
 }
 
 function main() {
