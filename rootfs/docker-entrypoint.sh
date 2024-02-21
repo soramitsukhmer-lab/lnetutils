@@ -7,22 +7,10 @@ TARGET_CHECK_MAX_HOP=${TARGET_CHECK_MAX_HOP:-15}
 trap 'exit 0' SIGTERM
 trap 'exit 0' SIGINT
 
-exec 3>&1
-
-export TRACEROUTE_ADDRESS_POOL=()
+exec 2>&1
 
 function _fdate() {
 	echo -n $(date +%Y-%m-%d\ %H:%M:%S)
-}
-
-function _add_ip_to_pool() {
-	local ip=$2
-	if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-		if [[ ! " ${TRACEROUTE_ADDRESS_POOL[@]} " =~ " ${ip} " ]]; then
-			TRACEROUTE_ADDRESS_POOL+=($ip)
-			echo "${TRACEROUTE_ADDRESS_POOL[@]}"
-		fi
-	fi
 }
 
 function traceroute_routine() {
