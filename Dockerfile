@@ -1,6 +1,7 @@
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y \
+RUN export DEBIAN_FRONTEND=noninteractive \
+    apt-get update && apt-get install -y \
         bash \
         curl     \
         netcat-openbsd \
