@@ -35,7 +35,7 @@ function traceroute_routine() {
 }
 
 function ping_routine() {
-	ping -n -c 5 -i 2 --ttl 2 -W 1 ${TARGET_HOST} | while read pong; do
+	ping -n -c 5 -i 2 -W 1 ${TARGET_HOST} | while read pong; do
 		if [[ $pong == "PING"* ]]; then
 			echo -e "[$(_fdate)] $pong"
 		elif [[ $pong == *"Request timeout"* ]]; then
