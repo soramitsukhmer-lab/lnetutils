@@ -16,4 +16,4 @@ build:
 	@echo
 
 run:
-	docker run -it --rm --network host -e TARGET_ADDR=10.10.200.92 docker.io/soramitsukhmer-lab/lnetutils:local
+	docker run -it --rm --network host docker.io/soramitsukhmer-lab/lnetutils:local
