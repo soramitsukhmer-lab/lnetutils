@@ -34,7 +34,7 @@ function traceroute_routine() {
 }
 
 function ping_routine() {
-	ping -ndv -c 30 -i 2 --ttl 1 -W 1 ${TARGET_ADDR} | while read pong; do
+	ping -nv -c 30 -i 2 --ttl 1 -W 1 ${TARGET_ADDR} | while read pong; do
 		if [[ $pong == "PING"* ]]; then
 			echo "[$(_fdate)] $pong"
 		elif [[ $pong == *"Request timeout"* ]]; then
