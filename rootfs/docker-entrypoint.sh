@@ -54,7 +54,9 @@ function ping_routine() {
 function main() {
 	echo "[$(_fdate)] Start network analysis on ${TARGET_HOST}"
 	echo "[$(_fdate)] "
-	echo "[$(_fdate)] Service will start traceroute and ping routine and run every ${TARGET_CHECK_INTERVAL} seconds."
+	echo "[$(_fdate)] Service will start traceroute once every 5 ping routines executed"
+	echo "[$(_fdate)] and re-run every ${TARGET_CHECK_INTERVAL} seconds."
+	echo "[$(_fdate)] "
 	echo "[$(_fdate)] Press Ctrl+C to stop."
 
 	while true; do
