@@ -40,7 +40,7 @@ function ping_routine() {
 		elif [[ $pong == *"Request timeout"* ]]; then
 			echo -e "[$(_fdate)] \t[!] $pong"
 		elif [[ $pong == *"Time to live exceeded"* ]]; then
-			echo -e "[$(_fdate)] \t[!] $pong (Possible reason: ICMP is disabled!)"
+			echo -e "[$(_fdate)] \t[!] $pong (reason: ICMP might be disabled!)"
 		elif [[ $pong == *"bytes from"* ]]; then
 			echo -e "[$(_fdate)] \t[-] $pong"
 		else
