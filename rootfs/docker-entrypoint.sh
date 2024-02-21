@@ -34,15 +34,15 @@ function traceroute_routine() {
 }
 
 function ping_routine() {
-	ping -nv -c 30 -i 2 --ttl 1 -W 1 ${TARGET_ADDR} | while read pong; do
+	ping -nv -c 5 -i 2 --ttl 1 -W 1 ${TARGET_ADDR} | while read pong; do
 		if [[ $pong == "PING"* ]]; then
-			echo "[$(_fdate)] $pong"
+			echo -e "[$(_fdate)] $pong"
 		elif [[ $pong == *"Request timeout"* ]]; then
 			echo -e "[$(_fdate)] \t[!] $pong"
 		elif [[ $pong == *"bytes from"* ]]; then
 			echo -e "[$(_fdate)] \t[-] $pong"
 		else
-			echo -e "[$(_fdate)] $pong"
+			echo -e "[$(_fdate)] \t$pong"
 		fi
 	done
 }
@@ -56,8 +56,11 @@ function main() {
 	while true; do
 		echo "[$(_fdate)] "; traceroute_routine
 		sleep ${TARGET_ANALYSE_INTERVAL}
-		echo "[$(_fdate)] "; ping_routine
-		echo "[$(_fdate)] "; sleep ${TARGET_ANALYSE_INTERVAL}
+
+		for(( i=0; i<5; i++ )); do
+			echo "[$(_fdate)] "; ping_routine
+			sleep ${TARGET_ANALYSE_INTERVAL}
+		done
 	done
 }
 
