@@ -46,7 +46,6 @@ function main() {
 	echo "[$(_fdate)] and re-run every ${TARGET_CHECK_INTERVAL} seconds."
 	echo "[$(_fdate)] "
 	echo "[$(_fdate)] Customizing the following environment variables to change the behavior:"
-	echo "[$(_fdate)] - TARGET_HOST=${TARGET_HOST}"
 	echo "[$(_fdate)] - TARGET_CHECK_INTERVAL=${TARGET_CHECK_INTERVAL} (default: 2)"
 	echo "[$(_fdate)] - TARGET_CHECK_MAX_HOP=${TARGET_CHECK_MAX_HOP} (default: 15)"
 	echo "[$(_fdate)] "
