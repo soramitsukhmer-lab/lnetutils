@@ -14,7 +14,7 @@ function _fdate() {
 }
 
 function traceroute_routine() {
-	traceroute -q 3 -w 1 -m ${TARGET_CHECK_MAX_HOP} --type icmp -I ${TARGET_HOST} | while read line; do
+	traceroute -q 3 -w ${TARGET_CHECK_INTERVAL} -m ${TARGET_CHECK_MAX_HOP} --type icmp -I ${TARGET_HOST} | while read line; do
 		if [[ $line == *"traceroute to"* ]]; then
 			echo "[$(_fdate)] $line"
 		else
@@ -24,7 +24,7 @@ function traceroute_routine() {
 }
 
 function ping_routine() {
-	ping -n -c 5 -i 2 --ttl ${TARGET_CHECK_MAX_HOP} -W 1 ${TARGET_HOST} | while read pong; do
+	ping -n -c 5 -i ${TARGET_CHECK_INTERVAL} --ttl ${TARGET_CHECK_MAX_HOP} -W 1 ${TARGET_HOST} | while read pong; do
 		if [[ $pong == "PING"* ]]; then
 			echo -e "[$(_fdate)] $pong"
 		elif [[ $pong == *"Request timeout"* ]]; then
@@ -47,6 +47,7 @@ function main() {
 	echo "[$(_fdate)] "
 	echo "[$(_fdate)] Customizing the following environment variables to change the behavior:"
 	echo "[$(_fdate)] - TARGET_HOST=${TARGET_HOST}"
+	echo "[$(_fdate)] - TARGET_CHECK_INTERVAL=${TARGET_CHECK_INTERVAL} (default: 2)"
 	echo "[$(_fdate)] - TARGET_CHECK_MAX_HOP=${TARGET_CHECK_MAX_HOP} (default: 15)"
 	echo "[$(_fdate)] "
 	echo "[$(_fdate)] Press Ctrl+C to stop."
