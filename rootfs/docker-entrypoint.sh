@@ -13,52 +13,57 @@ function _fdate() {
 	echo -n $(date +%Y-%m-%d\ %H:%M:%S)
 }
 
-function traceroute_routine() {
-	traceroute -q 3 -w ${TARGET_CHECK_INTERVAL} -m ${TARGET_CHECK_MAX_HOP} --type icmp -I ${TARGET_HOST} | while read line; do
-		if [[ $line == *"traceroute to"* ]]; then
-			echo "[$(_fdate)] $line"
-		else
-			echo -e "[$(_fdate)] \t$line"
-		fi
-	done
+function ping_routine() {
+	ping -n -i ${TARGET_CHECK_INTERVAL} --ttl ${TARGET_CHECK_MAX_HOP} -W 1 ${TARGET_HOST} | ping_routine_pipeline
 }
 
-function ping_routine() {
-	ping -n -c 5 -i ${TARGET_CHECK_INTERVAL} --ttl ${TARGET_CHECK_MAX_HOP} -W 1 ${TARGET_HOST} | while read pong; do
-		if [[ $pong == "PING"* ]]; then
-			echo -e "[$(_fdate)] $pong"
-		elif [[ $pong == *"Request timeout"* ]]; then
-			echo -e "[$(_fdate)] \t[!] $pong"
-		elif [[ $pong == *"Time to live exceeded"* ]]; then
-			echo -e "[$(_fdate)] \t[!] $pong (reason: ICMP might be disabled!)"
-		elif [[ $pong == *"bytes from"* ]]; then
-			echo -e "[$(_fdate)] \t[-] $pong"
-		else
-			echo -e "[$(_fdate)] \t$pong"
+function ping_routine_pipeline() {
+	local prev_icmp_seq=0
+	local expected_icmp_seq=0
+	local missing_icmp_seq_count=0
+
+	while read line; do
+		if [[ $line == *"PING"* ]]; then
+			continue
 		fi
+		_time=$(echo $line | grep -o "time=[0-9.]* ms" | cut -d= -f2)
+		_ttl=$(echo $line | grep -o "ttl=[0-9]*" | cut -d= -f2)
+		_icmp_seq=$(echo $line | grep -o "icmp_seq=[0-9]*" | cut -d= -f2)
+		echo -n "time=\"$(_fdate)\""
+		echo -n " icmp_seq=$_icmp_seq"
+		# echo -n " ttl=\"$_ttl\""
+		echo -n " latency=\"$_time\""
+		echo -n " msg=\"$line\""
+		echo -n " prev_icmp_seq=$prev_icmp_seq"
+		if [[ $_icmp_seq -eq 1 ]]; then
+			prev_icmp_seq=$_icmp_seq
+			expected_icmp_seq=$_icmp_seq
+		elif [[ $_icmp_seq -gt $prev_icmp_seq ]]; then
+			prev_icmp_seq=$_icmp_seq
+		fi
+		if [[ $_icmp_seq -ne $expected_icmp_seq ]]; then
+			missing_icmp_seq_count=$(($_icmp_seq-$expected_icmp_seq))
+		fi
+		expected_icmp_seq=$((prev_icmp_seq+1))
+		echo -n " expected_icmp_seq=$expected_icmp_seq"
+		if [[ $missing_icmp_seq_count -ne 0 ]]; then
+			echo -n " err=\"At least $missing_icmp_seq_count icmp_seq(s) failed to reply!\""
+			missing_icmp_seq_count=0
+		else
+			echo -n " err=\"\""
+		fi
+		echo ""
 	done
+
 }
 
 function main() {
-	echo "[$(_fdate)] Start network analysis on ${TARGET_HOST}"
-	echo "[$(_fdate)] "
-	echo "[$(_fdate)] Service will start traceroute once every 5 ping routines executed"
-	echo "[$(_fdate)] and re-run every ${TARGET_CHECK_INTERVAL} seconds."
-	echo "[$(_fdate)] "
-	echo "[$(_fdate)] Customizing the following environment variables to change the behavior:"
-	echo "[$(_fdate)] - TARGET_CHECK_INTERVAL=${TARGET_CHECK_INTERVAL} (default: 2)"
-	echo "[$(_fdate)] - TARGET_CHECK_MAX_HOP=${TARGET_CHECK_MAX_HOP} (default: 15)"
-	echo "[$(_fdate)] "
-	echo "[$(_fdate)] Press Ctrl+C to stop."
+	echo "time=\"$(_fdate)\" msg=\"Start network analysis on ${TARGET_HOST}\""
+	echo "time=\"$(_fdate)\" msg=\"Press Ctrl+C to stop.\""
 
 	while true; do
-		echo "[$(_fdate)] "; traceroute_routine
+		ping_routine
 		sleep ${TARGET_CHECK_INTERVAL}
-
-		for(( i=0; i<5; i++ )); do
-			echo "[$(_fdate)] "; ping_routine
-			sleep ${TARGET_CHECK_INTERVAL}
-		done
 	done
 }
 
