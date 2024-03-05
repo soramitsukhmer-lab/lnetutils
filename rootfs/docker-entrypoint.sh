@@ -13,10 +13,10 @@ function _fdate() {
 }
 
 function ping_routine() {
-	ping -n -i ${TARGET_CHECK_INTERVAL} --ttl ${TARGET_CHECK_MAX_HOP} -W 1 ${TARGET_HOST} | ping_routine_pipeline
+	ping -n -i ${TARGET_CHECK_INTERVAL} --ttl ${TARGET_CHECK_MAX_HOP} -W 1 ${TARGET_HOST} | ping_structure_logging
 }
 
-function ping_routine_pipeline() {
+function ping_structure_logging() {
 	local prev_icmp_seq=0
 	local expected_icmp_seq=0
 	local missing_icmp_seq_count=0
@@ -37,7 +37,6 @@ function ping_routine_pipeline() {
 		msg+=" icmp_seq=$_icmp_seq"
 		msg+=" ttl=\"$_ttl\""
 		msg+=" latency=\"$_time\""
-		# msg+=" msg=\"$line\""
 		msg+=" prev_icmp_seq=$prev_icmp_seq"
 		msg+=" expected_icmp_seq=$expected_icmp_seq"
 
@@ -61,7 +60,7 @@ function ping_routine_pipeline() {
 			msg+=" msg=\"\""
 		fi
 
-		echo "time=\"$(_fdate)\" level=\"$level\"${msg}"
+		echo "time=\"$(_fdate)\" level=\"$level\"${msg} stdout=\"$line\""
 	done
 }
 
