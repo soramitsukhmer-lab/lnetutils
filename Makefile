@@ -16,8 +16,9 @@ build:
 	@echo
 
 run:
-	docker run -it --rm \
+	docker run -it --rm --network host \
 		--log-driver=json-file \
 		--log-opt max-size=5m \
 		--log-opt max-file=5 \
+		-e TARGET_HOST=1.1.1.1 \
 		docker.io/soramitsukhmer-lab/lnetutils:local
